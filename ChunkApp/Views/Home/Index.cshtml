@@ -1,0 +1,134 @@
+﻿@model ChunkApp.Models.JokeDetail
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Your Joke</h1>
+</div>
+
+<div class="text-center">
+
+    <button type="button" class="btn btn-primary">@ViewBag.Actual.Joke</button>
+</div>
+
+
+<div class="text-center">     
+
+    <p>Created On :@ViewBag.Actual.DateModified </p>
+    <p>        ID :@ViewBag.Actual.OriginalId</p>
+</div>
+<br />
+<br />
+<div class="text-center">
+    <p>You are now saving this joke in the database</p>
+    <button type="button" class="btn btn-info">Do you want to make this your favourite joke?</button>
+    <button id="button_1" type="submit" class="btn btn-success">Yes  </button>
+    <button id="button_2" type="submit" class="btn btn-danger">No  </button>
+
+</div>
+<div class="spinner" style="display:block; margin:auto">
+<button class="btn btn-primary" id="spinner" style="display:none">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    <span class="visually-hidden">Saving to Database...</span>
+</button>
+ </div>
+
+
+<br/> <br/> <br/> <br/> <br/>
+<div  class="text-center">
+    <input type="submit" id="GetNewJoke" class="btn btn-primary" value="Get a new Joke"/>
+</div>
+
+
+
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Your Favourite joke</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('#GetNewJoke').click(function () {
+                window.location.reload();
+            });
+        });
+        $(document).ready(function () {
+            var checked = false;
+            $("#button_1").button().click(function (e) {
+                e.preventDefault();
+
+                var clicked = $('#button_1').val();
+                if (clicked != null) {
+                    checked = true;
+                   $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("AddorUpdateRecord")",
+                    dataType: "json",
+                    data: { button: true },
+                    beforeSend: () => {
+                        $("#spinner").css('display','block');
+                    },
+                    complete: () => {
+                      $("#spinner").css('display', 'none');
+                    },
+                    success: function (result) {                        
+                        $(".modal-body").html(result.value);
+                        jQuery(".modal").modal('show');
+                       
+                    },
+                    error: function (req, status, err) {
+                        console.log(err);
+                    }
+                })
+            }
+        });
+
+        $("#button_2").button().click(function (e) {
+            e.preventDefault();
+
+            var clicked = $('#button_2').val();
+            if (clicked != null) {
+                checked = true;
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("AddorUpdateRecord")",
+                    dataType: "json",
+                    data: { button: false },
+                    beforeSend: () => {
+                        $("#spinner").css('display', 'block');
+                    },
+                    complete: () => {
+                        $("#spinner").css('display', 'none');
+                    },
+                    success: function (result) {                        
+                        $(".modal-body").html(result.value);
+                        jQuery(".modal").modal('show');
+                    },
+                    error: function (req, status, err) {
+                        console.log(err);
+                    }
+                })
+            }
+        });
+    });
+    </script>
+}
+
